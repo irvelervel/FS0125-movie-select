@@ -23,7 +23,7 @@ class App extends Component {
     // nuovoValore è il valore appena scelto nella tendina dropdown
     // "Avengers", "Hulk", "Thor" etc.
     this.setState({
-      movieTitle: nuovoValore,
+      movieTitle: nuovoValore, // da 'Iron Man' es. a 'Thor'
     })
   }
 
