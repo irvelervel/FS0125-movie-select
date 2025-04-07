@@ -2,6 +2,7 @@ import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import MyNavbar from './components/MyNavbar'
 import MovieSelector from './components/MovieSelector'
+import MovieCard from './components/MovieCard'
 import { Component } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 
@@ -37,7 +38,7 @@ class App extends Component {
                 valore={this.state.movieTitle} // valore corrente dello state
                 cambiaValore={this.handleChange} // metodo per cambiare lo state
               />
-              {/* <MovieCard /> */}
+              <MovieCard valore={this.state.movieTitle} />
             </Col>
           </Row>
         </Container>
