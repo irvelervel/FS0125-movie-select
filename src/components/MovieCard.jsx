@@ -6,18 +6,20 @@
 // di dover condividere queste informazioni con altri componenti che non siano
 // nella discendenza di MovieCard
 
-import { Component } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from 'react-bootstrap'
 
-class MovieCard extends Component {
-  state = {
-    movieDetails: {}, // stato iniziale
-  }
+const MovieCard = function (props) {
+  // state = {
+  //   movieDetails: {}, // stato iniziale
+  // }
+
+  const [movieDetails, setMovieDetails] = useState({})
 
   // scriviamo la funzione che si occuperà di fare la chiamata GET a OMDBApi
-  getMovieData = () => {
+  const getMovieData = () => {
     // "valore" è una prop che trasporta sempre il valore scelto nella tendina!
-    fetch('http://www.omdbapi.com/?apikey=24ad60e9&s=' + this.props.valore)
+    fetch('http://www.omdbapi.com/?apikey=24ad60e9&s=' + props.valore)
       .then((response) => {
         if (response.ok) {
           // i dati sono arrivati!
@@ -31,67 +33,72 @@ class MovieCard extends Component {
         console.log('DATA', data.Search[0]) // il primo risultato della ricerca
         // ora che abbiamo recuperato i dati, per poterli mostrare nella card
         // dobbiamo sempre passare attraverso il "ponte di collegamento": lo state
-        this.setState({
-          movieDetails: data.Search[0], // da oggetto vuoto -> primo risultato di ricerca
-        })
+        // this.setState({
+        //   movieDetails: data.Search[0], // da oggetto vuoto -> primo risultato di ricerca
+        // })
+        setMovieDetails(data.Search[0])
       })
       .catch((err) => {
         console.log('ERRORE NEL RECUPERO FILM', err)
       })
   }
 
-  componentDidMount = () => {
-    // viene eseguito una volta sola, al termine del primo render!
-    this.getMovieData()
-  }
+  // componentDidMount = () => {
+  //   // viene eseguito una volta sola, al termine del primo render!
+  //   this.getMovieData()
+  // }
 
   // componentDidUpdate??
-  componentDidUpdate = (prevProps, prevState) => {
-    console.log('ENTRO NEL DIDUPDATE!')
-    // componentDidUpdate è un metodo di lifecycle (come render, componentDidMount etc.)
-    // che viene invocato automaticamente dal componente React...
-    // ...ad ogni cambio di props e ad ogni cambio di state!
-    // la differenza tra componentDidUpdate e render sta nei PARAMETRI DI COMPONENTDIDUPDATE
-    // this.getMovieData()
-    //
-    // componentDidUpdate viene eseguito subito dopo un UPDATE -> cioè un cambio di props o di state
-    // i due parametri che questo metodo riceve rappresentano l'oggetto delle props PRECEDENTI all'update
-    // e l'oggetto dello stato PRECEDENTE all'update
+  // componentDidUpdate = (prevProps, prevState) => {
+  //   console.log('ENTRO NEL DIDUPDATE!')
+  //   // componentDidUpdate è un metodo di lifecycle (come render, componentDidMount etc.)
+  //   // che viene invocato automaticamente dal componente React...
+  //   // ...ad ogni cambio di props e ad ogni cambio di state!
+  //   // la differenza tra componentDidUpdate e render sta nei PARAMETRI DI COMPONENTDIDUPDATE
+  //   // this.getMovieData()
+  //   //
+  //   // componentDidUpdate viene eseguito subito dopo un UPDATE -> cioè un cambio di props o di state
+  //   // i due parametri che questo metodo riceve rappresentano l'oggetto delle props PRECEDENTI all'update
+  //   // e l'oggetto dello stato PRECEDENTE all'update
 
-    // grazie agli oggetti prevProps e prevState... riuscite a capire COSA ha determinato l'update del componente!
+  //   // grazie agli oggetti prevProps e prevState... riuscite a capire COSA ha determinato l'update del componente!
 
-    // io voglio eseguire getMovieData() ogni volta che cambia il titolo della tendina
-    // ma NON VOGLIO rieseguirlo quando cambia lo state!!
-    if (
-      // controllo che sia cambiata la prop "valore"
-      this.props.valore !== prevProps.valore
-      // con questo capisco se sono entrato nel didUpdate per un cambio di film
-      // o se semplicemente ci sono rientrato "per sbaglio" a causa del setState
-    ) {
-      this.getMovieData()
-    }
-  }
+  //   // io voglio eseguire getMovieData() ogni volta che cambia il titolo della tendina
+  //   // ma NON VOGLIO rieseguirlo quando cambia lo state!!
+  //   if (
+  //     // controllo che sia cambiata la prop "valore"
+  //     this.props.valore !== prevProps.valore
+  //     // con questo capisco se sono entrato nel didUpdate per un cambio di film
+  //     // o se semplicemente ci sono rientrato "per sbaglio" a causa del setState
+  //   ) {
+  //     this.getMovieData()
+  //   }
+  // }
 
-  render() {
-    // visto che render si re-invoca ogni volta che cambiano le props o che cambia
-    // lo stato, perchè non mettere getMovieData qui??
-    // this.getMovieData()
-    // perchè questa cosa genere un LOOP INFINITO! è vero che la fetch verrebbe
-    // richiamata ad ogni cambio di tendina (di prop), ma è anche vero che getMovieData
-    // effettua un this.setState, e anch'esso è un motivo valido per re-invocare render!
+  useEffect(() => {
+    getMovieData()
+    // lo devo eseguire all'avvio,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.valore])
 
-    return (
-      <Card className="mt-2">
-        <Card.Img variant="top" src={this.state.movieDetails.Poster} />
-        <Card.Body className="text-center">
-          <Card.Title>{this.state.movieDetails.Title}</Card.Title>
-          <Card.Text>
-            {this.state.movieDetails.Year} - {this.state.movieDetails.Type}
-          </Card.Text>
-        </Card.Body>
-      </Card>
-    )
-  }
+  // visto che render si re-invoca ogni volta che cambiano le props o che cambia
+  // lo stato, perchè non mettere getMovieData qui??
+  // this.getMovieData()
+  // perchè questa cosa genere un LOOP INFINITO! è vero che la fetch verrebbe
+  // richiamata ad ogni cambio di tendina (di prop), ma è anche vero che getMovieData
+  // effettua un this.setState, e anch'esso è un motivo valido per re-invocare render!
+
+  return (
+    <Card className="mt-2">
+      <Card.Img variant="top" src={movieDetails.Poster} />
+      <Card.Body className="text-center">
+        <Card.Title>{movieDetails.Title}</Card.Title>
+        <Card.Text>
+          {movieDetails.Year} - {movieDetails.Type}
+        </Card.Text>
+      </Card.Body>
+    </Card>
+  )
 }
 
 export default MovieCard
